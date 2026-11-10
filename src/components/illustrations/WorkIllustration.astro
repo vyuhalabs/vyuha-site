@@ -1,0 +1,205 @@
+---
+// Takeaway 1: a project in vyuha. The playbook's stages run along the top; the
+// project's issues below, each held by an agent or waiting on a person.
+import Frame from "./Frame.astro";
+
+const stages = [
+  { name: "Charter", state: "done" },
+  { name: "Plan", state: "done" },
+  { name: "Build", state: "active" },
+  { name: "Review", state: "next" },
+  { name: "Verify", state: "next" },
+  { name: "Release", state: "next" },
+] as const;
+
+const issues = [
+  { id: "WEB-41", title: "Invoice list: filter by status", who: "engineer agent", state: "In progress", dot: "active" },
+  { id: "WEB-38", title: "Export invoices as CSV", who: "reviewer agent", state: "In review", dot: "active" },
+  { id: "WEB-36", title: "Empty state for new accounts", who: "QA agent", state: "Verifying", dot: "active" },
+  { id: "WEB-44", title: "Refund window: 14 or 30 days", who: "you", state: "In your Inbox", dot: "open" },
+  { id: "WEB-33", title: "Retry failed card payments", who: "merged #128", state: "Done", dot: "done" },
+] as const;
+---
+
+<Frame
+  label="Illustration of a project in vyuha. The project Customer portal follows a playbook with six stages, charter, plan, build, review, verify and release, and is in build. Its issues are held by an engineer agent, a reviewer agent and a QA agent; one decision waits in your Inbox and one issue is done and merged."
+  crumbs={["Web", "Projects", "Customer portal"]}
+>
+  <div class="work">
+    <div class="work__head">
+      <div>
+        <p class="ill-label">Playbook · standard</p>
+        <p class="work__title">Customer portal</p>
+      </div>
+      <span class="ill-pill ill-pill--accent"><span class="ill-dot ill-dot--active"></span>Stage: Build</span>
+    </div>
+
+    <ol class="stages">
+      {
+        stages.map((s, i) => (
+          <li class:list={["stage", `stage--${s.state}`]}>
+            <span class="stage__bar" />
+            <span class="stage__name">
+              <span class="stage__num ill-mono">{String(i + 1).padStart(2, "0")}</span>
+              {s.name}
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+
+    <ul class="issues">
+      {
+        issues.map((it) => (
+          <li class:list={["issue", { "issue--you": it.who === "you" }]}>
+            <span class:list={["ill-dot", { "ill-dot--active": it.dot === "active", "ill-dot--done": it.dot === "done" }]} />
+            <span class="issue__id ill-mono ill-muted">{it.id}</span>
+            <span class="issue__title ill-truncate">{it.title}</span>
+            <span class="issue__meta">
+              <span class="issue__who ill-mono">{it.who}</span>
+              <span class="issue__state ill-muted">{it.state}</span>
+            </span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Frame>
+
+<style>
+  .work {
+    display: grid;
+    gap: var(--space-6);
+  }
+  .work__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .work__head p {
+    margin: 0;
+  }
+  .work__title {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin-top: var(--space-1) !important;
+  }
+
+  .stages {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .stage {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .stage__bar {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--color-border);
+  }
+  .stage--done .stage__bar {
+    background: var(--color-text-muted);
+  }
+  .stage--active .stage__bar {
+    background: var(--color-accent);
+  }
+  .stage__name {
+    display: flex;
+    flex-direction: column;
+    font-size: var(--ill-text-xs);
+    color: var(--color-text-muted);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .stage--active .stage__name {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+  .stage__num {
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+
+  .issues {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+  .issue {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    grid-template-areas:
+      "dot id title"
+      ". meta meta";
+    align-items: center;
+    column-gap: var(--space-3);
+    row-gap: var(--space-1);
+    padding: var(--space-3) var(--space-4);
+  }
+  .issue + .issue {
+    border-top: 1px solid var(--color-border);
+  }
+  .issue .ill-dot {
+    grid-area: dot;
+  }
+  .issue__id {
+    grid-area: id;
+  }
+  .issue__title {
+    grid-area: title;
+  }
+  .issue__meta {
+    grid-area: meta;
+    display: flex;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+  .issue__who {
+    color: var(--color-text-muted);
+  }
+  .issue__state {
+    font-size: var(--ill-text-xs);
+  }
+  .issue--you {
+    background: var(--ill-tint);
+  }
+  .issue--you .issue__who {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  /* Wide enough: one line per issue, columns aligned. */
+  @container (min-width: 34rem) {
+    .issue {
+      grid-template-columns: auto 4.5rem minmax(0, 1fr) 15.5rem;
+      grid-template-areas: "dot id title meta";
+    }
+    .issue__meta {
+      display: grid;
+      grid-template-columns: 8.5rem 6.5rem;
+      gap: var(--space-2);
+    }
+    .issue__state {
+      text-align: right;
+    }
+  }
+  @container (max-width: 26rem) {
+    .stage__num {
+      display: none;
+    }
+    .stage__name {
+      font-size: 0.6875rem;
+    }
+  }
+</style>

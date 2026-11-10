@@ -1,0 +1,47 @@
+---
+// The getting-started guide. This is its first, short version so the home
+// page's primary call to action resolves; ENG-6 writes the full guide here.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { href, site } from "../../lib/site";
+---
+
+<BaseLayout
+  title="Getting started"
+  description="How to start with vyuha: access is by request; once you have it, connect a repository, create a project, file a first issue and read a run's evidence."
+>
+  <section class="container page-section" aria-labelledby="page-title">
+    <p class="eyebrow">Guide</p>
+    <h1 id="page-title">Getting started</h1>
+    <p class="lede">
+      Access to vyuha is by request. Once you have it, the first hour looks like this: connect a repository, create a
+      project, file a first issue and read the evidence of the run an agent does on it.
+    </p>
+    <ol class="guide-steps">
+      <li><strong>Connect a repository.</strong> Agents work in it through branches and pull requests.</li>
+      <li><strong>Create a project.</strong> Give it a team, a goal and a playbook.</li>
+      <li><strong>File a first issue.</strong> An agent picks it up and starts a run.</li>
+      <li><strong>Read the run's evidence.</strong> Commands, tests, screenshots and the pull request, checked before anything merges.</li>
+    </ol>
+    <p>The full guide is being written. Until then, you can ask for access.</p>
+    <p class="guide-actions">
+      <a class="button button--primary" href={site.accessRequestUrl}>Ask for access</a>
+      <a class="button" href={href("/")}>Back to the home page</a>
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  .guide-steps {
+    max-width: var(--prose-width);
+    padding-left: var(--space-6);
+    margin: 0 0 var(--space-8);
+  }
+  .guide-steps li {
+    margin-bottom: var(--space-3);
+  }
+  .guide-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+</style>

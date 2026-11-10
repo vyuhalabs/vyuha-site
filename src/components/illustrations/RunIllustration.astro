@@ -1,0 +1,286 @@
+---
+// Takeaway 2: a run and its evidence. What the agent ran, with exit codes,
+// the screenshot it attached, its pull request, and the checks that stand
+// between the run and a merge.
+import Frame from "./Frame.astro";
+
+const evidence = [
+  { kind: "tests", cmd: "pnpm test", result: "142 passed", exit: 0 },
+  { kind: "typecheck", cmd: "pnpm exec tsc --noEmit", result: "0 errors", exit: 0 },
+  { kind: "lint", cmd: "pnpm exec biome ci .", result: "0 findings", exit: 0 },
+] as const;
+
+const gates = [
+  { name: "Review", by: "reviewer agent", result: "Approved, 2 notes, 0 must fix", state: "done" },
+  { name: "Verify", by: "QA agent", result: "a1 a2 a3 a4 hold", state: "done" },
+  { name: "Merge", by: "vyuha", result: "After checks are green", state: "active" },
+] as const;
+---
+
+<Frame
+  label="Illustration of a run in vyuha. An engineer agent's run on issue WEB-38, Export invoices as CSV, lists its evidence: tests, typecheck and lint commands with exit code 0, a screenshot of the export dialog and pull request 131. A reviewer agent approved it, a QA agent verified its four acceptance criteria, and vyuha merges once the checks are green."
+  crumbs={["WEB-38", "Runs", "r-7k2mq"]}
+>
+  <div class="run">
+    <div class="run__head">
+      <div class="run__title">
+        <p class="ill-label">Run · attempt 1 · engineer agent</p>
+        <p class="run__name">Export invoices as CSV</p>
+      </div>
+      <dl class="run__facts ill-mono">
+        <div><dt>time</dt><dd>14 min</dd></div>
+        <div><dt>cost</dt><dd>$1.84</dd></div>
+      </dl>
+    </div>
+
+    <div class="run__grid">
+      <div class="run__col">
+        <p class="ill-label">Evidence</p>
+        <ul class="ev">
+          {
+            evidence.map((e) => (
+              <li class="ev__row">
+                <span class="ev__kind">{e.kind}</span>
+                <code class="ev__cmd ill-truncate">$ {e.cmd}</code>
+                <span class="ev__res ill-muted">
+                  <span class="ill-check">✓</span> exit {e.exit} · {e.result}
+                </span>
+              </li>
+            ))
+          }
+          <li class="ev__row ev__row--shot">
+            <span class="ev__kind">screenshot</span>
+            <span class="shot">
+              <span class="shot__bar"></span>
+              <span class="shot__dialog">
+                <span class="shot__line shot__line--title"></span>
+                <span class="shot__line"></span>
+                <span class="shot__line shot__line--short"></span>
+                <span class="shot__btn"></span>
+              </span>
+            </span>
+            <span class="ev__res ill-muted ill-mono">export-dialog-1280.png</span>
+          </li>
+          <li class="ev__row">
+            <span class="ev__kind">pull request</span>
+            <span class="ev__cmd ill-mono">#131 · 4 files</span>
+            <span class="ev__res ill-muted ill-mono">+212 −18</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="run__col">
+        <p class="ill-label">Before anything merges</p>
+        <ol class="gates">
+          {
+            gates.map((g) => (
+              <li class:list={["gate", `gate--${g.state}`]}>
+                <span class:list={["ill-dot", { "ill-dot--done": g.state === "done", "ill-dot--active": g.state === "active" }]} />
+                <span class="gate__body">
+                  <span class="gate__name">
+                    {g.name} <span class="ill-mono ill-muted">{g.by}</span>
+                  </span>
+                  <span class="gate__res ill-muted">{g.result}</span>
+                </span>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+  </div>
+</Frame>
+
+<style>
+  .run {
+    display: grid;
+    gap: var(--space-6);
+  }
+  .run p {
+    margin: 0;
+  }
+  .run__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .run__name {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin-top: var(--space-1) !important;
+  }
+  .run__facts {
+    display: flex;
+    gap: var(--space-4);
+    margin: 0;
+  }
+  .run__facts div {
+    display: grid;
+    gap: 2px;
+  }
+  .run__facts dt {
+    color: var(--color-text-muted);
+  }
+  .run__facts dd {
+    margin: 0;
+    color: var(--color-text);
+  }
+
+  .run__grid {
+    display: grid;
+    gap: var(--space-6);
+  }
+  .run__col {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+    min-width: 0;
+  }
+  @container (min-width: 36rem) {
+    .run__grid {
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    }
+  }
+
+  .ev {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+  .ev__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "kind res"
+      "cmd cmd";
+    gap: var(--space-1) var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    align-items: center;
+  }
+  .ev__row + .ev__row {
+    border-top: 1px solid var(--color-border);
+  }
+  .ev__kind {
+    grid-area: kind;
+    font-size: var(--ill-text-xs);
+    font-weight: 600;
+  }
+  .ev__cmd {
+    grid-area: cmd;
+    font-size: var(--ill-text-xs);
+  }
+  .ev__res {
+    grid-area: res;
+    font-size: var(--ill-text-xs);
+    white-space: nowrap;
+  }
+  .ev__row--shot {
+    grid-template-areas:
+      "kind res"
+      "shot shot";
+  }
+  .ev__row--shot .ev__res {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* A screenshot drawn in CSS: a page with a dialog on it. */
+  .shot {
+    grid-area: shot;
+    position: relative;
+    display: block;
+    height: 4.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-subtle);
+    overflow: hidden;
+  }
+  .shot__bar {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+  .shot__dialog {
+    position: absolute;
+    left: 50%;
+    top: 1.25rem;
+    transform: translateX(-50%);
+    width: min(11rem, 70%);
+    padding: 0.4rem 0.5rem;
+    display: grid;
+    gap: 0.3rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 3px;
+  }
+  .shot__line {
+    height: 3px;
+    border-radius: 2px;
+    background: var(--color-border);
+  }
+  .shot__line--title {
+    width: 50%;
+    background: var(--color-text-muted);
+  }
+  .shot__line--short {
+    width: 70%;
+  }
+  .shot__btn {
+    justify-self: end;
+    width: 2rem;
+    height: 0.5rem;
+    border-radius: 2px;
+    background: var(--color-accent);
+  }
+
+  .gates {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+  }
+  .gate {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-3);
+    padding-bottom: var(--space-4);
+  }
+  .gate .ill-dot {
+    margin-top: 0.4rem;
+    position: relative;
+    z-index: 1;
+  }
+  .gate:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: calc(0.25rem - 0.5px);
+    top: 1rem;
+    bottom: 0;
+    width: 1px;
+    background: var(--color-border);
+  }
+  .gate__body {
+    display: grid;
+    gap: 2px;
+  }
+  .gate__name {
+    font-weight: 600;
+  }
+  .gate__name .ill-mono {
+    font-weight: 400;
+    margin-left: var(--space-1);
+  }
+  .gate__res {
+    font-size: var(--ill-text-xs);
+  }
+  .gate--active .gate__name {
+    color: var(--color-text);
+  }
+</style>

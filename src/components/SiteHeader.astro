@@ -7,6 +7,7 @@ import { href, site } from "../lib/site";
     <a class="wordmark" href={href("/")}>{site.name}<span class="visually-hidden">, home</span></a>
     <nav aria-label="Main">
       <ul class="nav-list">
+        <li><a href={href(site.guidePath)}>Getting started</a></li>
         <li><a href={site.accessRequestUrl}>Ask for access</a></li>
       </ul>
     </nav>
