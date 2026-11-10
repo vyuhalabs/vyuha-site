@@ -58,3 +58,19 @@ test("reports links that are missing from the build and passes the ones that exi
     ["index.html /vyuha-site/faq/ not found in build", "index.html /guide/ outside base /vyuha-site"],
   );
 });
+
+test("a #fragment link must point at an id on its target page", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "links-frag-"));
+  mkdirSync(join(dir, "model"));
+  writeFileSync(join(dir, "model", "index.html"), '<section id="work"></section>');
+  writeFileSync(
+    join(dir, "index.html"),
+    '<main id="main"></main><a href="#main">ok</a><a href="#nope">bad</a>' +
+      '<a href="/vyuha-site/model/#work">ok</a><a href="model/#agents">bad</a><a href="https://x.org/#y">external</a>',
+  );
+  const { broken } = await checkLinks(dir, site);
+  assert.deepEqual(
+    broken.map((b) => b.url),
+    ["#nope", "model/#agents"],
+  );
+});

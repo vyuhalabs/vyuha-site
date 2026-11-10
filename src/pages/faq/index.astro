@@ -1,0 +1,58 @@
+---
+// The FAQ: one entry of src/content/faq per question, in `order`. Each
+// question is a section with an anchor (its file name without the number).
+import { getCollection, render } from "astro:content";
+import DocLayout from "../../layouts/DocLayout.astro";
+import { site } from "../../lib/site";
+
+const entries = (await getCollection("faq")).sort((a, b) => a.data.order - b.data.order);
+const questions = await Promise.all(
+  entries.map(async (e) => ({
+    id: e.id.replace(/^\d+-/, ""),
+    question: e.data.question,
+    Content: (await render(e)).Content,
+  })),
+);
+---
+
+<DocLayout
+  title="Frequently asked questions"
+  description="Short answers about vyuha: what it is, who it is for, which harnesses it runs, how spend is controlled and how to get access."
+  eyebrow="FAQ"
+  lede="Short answers to what people ask first. For the whole picture, read the model; to begin, the getting-started guide."
+  ogImage="faq"
+  toc={questions.map((q) => ({ id: q.id, text: q.question }))}
+  tocOnPhones={false}
+>
+  {
+    questions.map((q) => (
+      <section class="doc-section qa" id={q.id} aria-labelledby={`${q.id}-title`}>
+        <h2 id={`${q.id}-title`}>{q.question}</h2>
+        <div class="qa__answer">
+          <q.Content />
+        </div>
+      </section>
+    ))
+  }
+  <aside class="more" aria-label="Not answered here">
+    <p>
+      Not answered here? Ask in your <a href={site.accessRequestUrl}>access request</a> on GitHub.
+    </p>
+  </aside>
+</DocLayout>
+
+<style>
+  .qa h2 {
+    font-size: var(--text-xl);
+    font-weight: 600;
+    margin-bottom: var(--space-3);
+  }
+  .more {
+    margin-top: var(--space-12);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-border);
+  }
+  .more p {
+    margin: 0;
+  }
+</style>

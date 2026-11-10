@@ -59,6 +59,45 @@ export function resolveInternal(url, pageFile, site) {
 }
 
 /**
+ * The ids of the elements of a page, which `#fragment` links may point at.
+ * @param {string} html
+ * @returns {Set<string>}
+ */
+export function idsOf(html) {
+  return new Set([...html.matchAll(/\sid\s*=\s*("([^"]*)"|'([^']*)')/g)].map((m) => m[2] ?? m[3] ?? ""));
+}
+
+/**
+ * The `href`s of a page that carry a fragment, with the fragment split off.
+ * @param {string} html
+ * @returns {{ url: string, path: string, fragment: string }[]}
+ */
+export function fragmentLinks(html) {
+  /** @type {{ url: string, path: string, fragment: string }[]} */
+  const links = [];
+  for (const m of html.matchAll(/\shref\s*=\s*("([^"]*)"|'([^']*)')/gi)) {
+    const url = m[2] ?? m[3] ?? "";
+    const hash = url.indexOf("#");
+    if (hash < 0 || hash === url.length - 1) continue;
+    links.push({ url, path: url.slice(0, hash), fragment: decodeURIComponent(url.slice(hash + 1)) });
+  }
+  return links;
+}
+
+/**
+ * The HTML file in the build that a site path is served from, or null.
+ * @param {string} distDir
+ * @param {string} path a site path relative to base, e.g. `/guide/`
+ */
+export function htmlFileFor(distDir, path) {
+  const file = join(distDir, path);
+  for (const f of [join(file, "index.html"), `${file.replace(/\/$/, "")}.html`, file]) {
+    if (f.endsWith(".html") && existsSync(f) && statSync(f).isFile()) return f;
+  }
+  return null;
+}
+
+/**
  * @param {string} distDir
  * @param {string} path a site path relative to base, e.g. `/guide/`
  */
@@ -80,8 +119,33 @@ export async function checkLinks(distDir, site) {
   /** @type {{ page: string, url: string, reason: string }[]} */
   const broken = [];
   let checked = 0;
+  /** @type {Map<string, Set<string>>} */
+  const idCache = new Map();
+  /** @param {string} file */
+  const idsIn = async (file) => {
+    let ids = idCache.get(file);
+    if (!ids) {
+      ids = idsOf(await readFile(file, "utf8"));
+      idCache.set(file, ids);
+    }
+    return ids;
+  };
   for (const page of pages) {
     const html = await readFile(join(distDir, page), "utf8");
+    for (const link of fragmentLinks(html)) {
+      /** @type {string | null} */
+      let file = join(distDir, page);
+      if (link.path !== "") {
+        const target = resolveInternal(link.path, page, site);
+        if (target === null || "outsideBase" in target) continue;
+        file = htmlFileFor(distDir, target.path);
+        if (file === null) continue; // reported below as not found
+      }
+      checked++;
+      if (!(await idsIn(file)).has(link.fragment)) {
+        broken.push({ page, url: link.url, reason: `no element with id "${link.fragment}"` });
+      }
+    }
     for (const url of extractUrls(html)) {
       const target = resolveInternal(url, page, site);
       if (target === null) continue;

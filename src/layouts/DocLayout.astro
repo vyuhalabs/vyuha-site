@@ -1,0 +1,214 @@
+---
+// The frame of a long page (the model, the guide, the FAQ): a header with the
+// eyebrow, the page's one h1 and a lede, then the body in a reading column,
+// with "On this page" beside it on wide screens. The body's sections come from
+// the docs collection, where src/lib/rehype-sections.mjs gives each `##` its
+// own <section id>.
+import DocPager from "../components/DocPager.astro";
+import type { OgImageKey } from "../lib/og-images";
+import BaseLayout from "./BaseLayout.astro";
+
+export interface Props {
+  title: string;
+  description: string;
+  eyebrow: string;
+  lede: string;
+  ogImage?: OgImageKey;
+  /** Sections for "On this page": the section's id and its heading. */
+  toc?: { id: string; text: string }[];
+  /** Show "On this page" on phones too (on wide screens it is always shown). */
+  tocOnPhones?: boolean;
+  /** Number the sections 01, 02, … */
+  numbered?: boolean;
+}
+
+const { title, description, eyebrow, lede, ogImage, toc = [], tocOnPhones = true, numbered = false } = Astro.props;
+---
+
+<BaseLayout title={title} description={description} ogImage={ogImage}>
+  <div class="doc-head">
+    <div class="container">
+      <p class="eyebrow">{eyebrow}</p>
+      <h1 id="page-title">{title}</h1>
+      <p class="lede">{lede}</p>
+      <slot name="intro" />
+    </div>
+  </div>
+
+  <div class:list={["container", "doc-grid", { "doc-grid--toc": toc.length > 0 }]}>
+    {
+      toc.length > 0 && (
+        <nav class:list={["toc", { "toc--wide-only": !tocOnPhones }]} aria-labelledby="toc-title">
+          <p class="toc__title" id="toc-title">
+            On this page
+          </p>
+          <ol class="toc__list">
+            {toc.map((t) => (
+              <li>
+                <a href={`#${t.id}`}>{t.text}</a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )
+    }
+    <div class="doc-main">
+      <div class:list={["prose", { "prose--numbered": numbered }]}>
+        <slot />
+      </div>
+      <DocPager />
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .doc-head {
+    padding-block: var(--space-16) var(--space-12);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .doc-head h1 {
+    max-width: 28ch;
+    margin-bottom: var(--space-6);
+  }
+  .doc-head .lede {
+    margin-bottom: 0;
+  }
+
+  .doc-grid {
+    display: grid;
+    gap: var(--space-8);
+    padding-block: var(--space-12) var(--space-24);
+  }
+  .doc-main {
+    min-width: 0;
+    max-width: var(--prose-width);
+  }
+
+  .toc {
+    align-self: start;
+    font-size: var(--text-sm);
+    padding: var(--space-4) var(--space-6);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+  .toc--wide-only {
+    display: none;
+  }
+  .toc__title {
+    font-family: var(--font-mono);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-2);
+  }
+  .toc__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .toc__list a {
+    display: block;
+    padding-block: var(--space-1);
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+  .toc__list a:hover {
+    color: var(--color-text);
+  }
+
+  @media (min-width: 64rem) {
+    .doc-head {
+      padding-block: var(--space-24) var(--space-16);
+    }
+    .doc-grid--toc {
+      grid-template-columns: 13rem minmax(0, 1fr);
+      gap: var(--space-16);
+      padding-block: var(--space-16) var(--space-24);
+    }
+    .toc,
+    .toc--wide-only {
+      display: block;
+      position: sticky;
+      top: var(--space-8);
+      padding: 0 0 0 var(--space-4);
+      border: 0;
+      border-left: 1px solid var(--color-border);
+      border-radius: 0;
+    }
+  }
+
+  /* Body copy from Markdown. */
+  .prose :global(.doc-section) {
+    scroll-margin-top: var(--space-8);
+  }
+  .prose :global(.doc-section + .doc-section) {
+    margin-top: var(--space-12);
+    padding-top: var(--space-12);
+    border-top: 1px solid var(--color-border);
+  }
+  .prose :global(h2) {
+    font-size: var(--text-2xl);
+  }
+  .prose :global(h3) {
+    font-size: var(--text-lg);
+    margin-top: var(--space-8);
+  }
+  .prose :global(p),
+  .prose :global(li) {
+    color: var(--color-text-muted);
+  }
+  .prose :global(strong) {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+  .prose :global(:not(pre) > code) {
+    padding: 0.1em 0.35em;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-subtle);
+    color: var(--color-text);
+    font-size: 0.85em;
+  }
+  .prose :global(ul),
+  .prose :global(ol) {
+    margin: 0 0 var(--space-4);
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--space-2);
+  }
+  .prose :global(ul > li) {
+    position: relative;
+    padding-left: var(--space-6);
+  }
+  .prose :global(ul > li)::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.8em;
+    width: 0.75rem;
+    height: 1px;
+    background: var(--color-accent);
+  }
+  .prose :global(> :last-child),
+  .prose :global(.doc-section > :last-child) {
+    margin-bottom: 0;
+  }
+
+  /* Numbered sections: a mono counter above each h2. */
+  .prose--numbered {
+    counter-reset: doc-section;
+  }
+  .prose--numbered :global(.doc-section) {
+    counter-increment: doc-section;
+  }
+  .prose--numbered :global(.doc-section > h2)::before {
+    content: counter(doc-section, decimal-leading-zero);
+    content: counter(doc-section, decimal-leading-zero) / "";
+    display: block;
+    margin-bottom: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--color-accent);
+  }
+</style>
