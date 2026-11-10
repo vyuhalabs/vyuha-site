@@ -1,0 +1,42 @@
+---
+// The frame of every page: head (fonts, SEO), skip link, header, one <main>
+// and footer. A page supplies exactly one <h1> inside its content.
+import "../styles/global.css";
+import Fonts from "../components/Fonts.astro";
+import Seo from "../components/Seo.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import type { OgImageKey } from "../lib/og-images";
+import { href, site } from "../lib/site";
+
+export interface Props {
+  title: string;
+  description: string;
+  ogImage?: OgImageKey;
+  noindex?: boolean;
+}
+
+const props = Astro.props;
+---
+
+<!doctype html>
+<html lang={site.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fbfaf8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1c1917" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href={href("favicon.svg")} type="image/svg+xml" />
+    <Fonts />
+    <Seo {...props} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <SiteHeader />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>
