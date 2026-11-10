@@ -38,6 +38,10 @@ import { href } from "../lib/site";
 - Anything that moves goes inside `@media (prefers-reduced-motion: no-preference)`.
 - A page that needs its own link preview adds an entry to `src/lib/og-images.ts` and passes its key as `ogImage`.
 
+## Product illustrations
+
+The home page shows the product with HTML/CSS illustrations in `src/components/illustrations/`, not screenshots. Each sits in `Frame.astro`, a window with a mono breadcrumb, which is one `role="img"` with an `aria-label` that says what it shows. The data is invented: issue keys like `WEB-41`, roles instead of names ("engineer agent", "you"). Layout inside a frame follows the frame's own width (container queries), so the same illustration works in a column at 360px and beside text at 1440px. Colours only from the tokens; the accent marks what needs attention.
+
 ## Address, base and SEO
 
 `SITE_URL` (default `https://vyuhalabs.github.io/vyuha-site`) sets Astro's `site` (its origin) and `base` (its path) in `astro.config.mjs`. The deploy workflow sets it. Canonical links, Open Graph URLs, `sitemap.xml` and `robots.txt` all follow it, so a custom domain later is a change to that one value.

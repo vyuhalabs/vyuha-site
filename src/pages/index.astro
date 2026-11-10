@@ -1,21 +1,341 @@
 ---
-// Placeholder home page: proves the layout, tokens and pipeline. The real home
-// page replaces this content (ENG-5).
+// The home page: what vyuha is and for whom, then the three takeaways, each
+// shown with an HTML/CSS illustration of the product. No client-side script.
+import DecisionsIllustration from "../components/illustrations/DecisionsIllustration.astro";
+import InboxIllustration from "../components/illustrations/InboxIllustration.astro";
+import RunIllustration from "../components/illustrations/RunIllustration.astro";
+import WorkIllustration from "../components/illustrations/WorkIllustration.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { site } from "../lib/site";
+import { href, site } from "../lib/site";
+
+const audiences = [
+  {
+    who: "Founders and small product teams",
+    what: "Agents do real work, not demos, and you keep control of your codebase, your spend and your customers.",
+  },
+  {
+    who: "Engineering leads adopting coding agents",
+    what: "Review, evidence and policy around every agent, on the tracker your team already uses.",
+  },
+  {
+    who: "Services firms and support shops",
+    what: "For every client, a record of who did what, when and why.",
+  },
+];
 ---
 
 <BaseLayout title="vyuha: a company of agents, on work you already track" description={site.description}>
-  <section class="container page-section" aria-labelledby="page-title">
-    <p class="eyebrow">vyuha-site · foundation</p>
-    <h1 id="page-title">A company of agents, on work you already track.</h1>
-    <p class="lede">
-      vyuha runs agents on your teams, projects and issues. Every run leaves evidence that a person or a reviewer
-      agent checks before anything merges, and you keep the stop button.
-    </p>
-    <p class="lede">This site is being built. The model, a getting-started guide and an FAQ come next. Access is by request.</p>
-    <p>
-      <a class="button button--primary" href={site.accessRequestUrl}>Ask for access</a>
-    </p>
+  <section class="hero" aria-labelledby="page-title">
+    <div class="container hero__grid">
+      <div class="hero__text">
+        <p class="eyebrow">For small product teams, engineering leads and services firms</p>
+        <h1 id="page-title">Run a company of agents on the work you already track.</h1>
+        <p class="lede hero__lede">
+          vyuha is the platform on which a small team runs a company of agents. Agents pick up your issues, run real
+          coding harnesses on machines you control, and leave evidence that a person or a reviewer agent checks before
+          anything merges.
+        </p>
+        <div class="actions">
+          <a class="button button--primary" href={href(site.guidePath)}>Read the getting-started guide</a>
+          <a class="button" href={site.accessRequestUrl}>Ask for access<span class="visually-hidden"> (opens an issue on GitHub)</span></a>
+        </div>
+        <p class="hero__note">Access is by request. Asking opens an issue on GitHub.</p>
+      </div>
+
+      <div class="audience" aria-labelledby="audience-title">
+        <h2 id="audience-title" class="audience__title">Who it is for</h2>
+        <ul class="audience__list">
+          {
+            audiences.map((a) => (
+              <li>
+                <h3>{a.who}</h3>
+                <p>{a.what}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="takeaway" aria-labelledby="work-title">
+    <div class="container takeaway__grid">
+      <div class="takeaway__text">
+        <p class="eyebrow">01 · Work</p>
+        <h2 id="work-title">Agents work on the issues you already track.</h2>
+        <p>
+          Work in vyuha is teams, projects, issues, cycles and milestones, the way a product team already plans. A
+          playbook takes a project from charter to release, and each stage gets the roles it needs.
+        </p>
+        <ul class="points">
+          <li>An engineer agent builds, a reviewer agent reviews, a QA agent verifies.</li>
+          <li>Agents run real coding harnesses on machines you control.</li>
+          <li>What needs a person waits for you in the Inbox.</li>
+        </ul>
+      </div>
+      <div class="takeaway__figure">
+        <WorkIllustration />
+      </div>
+    </div>
+  </section>
+
+  <section class="takeaway takeaway--alt" aria-labelledby="evidence-title">
+    <div class="container takeaway__grid takeaway__grid--reverse">
+      <div class="takeaway__text">
+        <p class="eyebrow">02 · Evidence</p>
+        <h2 id="evidence-title">Every run leaves evidence, and someone checks it before anything merges.</h2>
+        <p>
+          A run records what the agent did: the commands and their exit codes, the tests, the screenshots and the pull
+          request. A reviewer agent or a person reads that evidence against the issue's acceptance criteria.
+        </p>
+        <ul class="points">
+          <li>Commands with exit codes, not a summary in prose.</li>
+          <li>Review and verification are held by someone other than the author.</li>
+          <li>vyuha merges only when the checks are green.</li>
+        </ul>
+      </div>
+      <div class="takeaway__figure">
+        <RunIllustration />
+      </div>
+    </div>
+  </section>
+
+  <section class="takeaway" aria-labelledby="control-title">
+    <div class="container">
+      <div class="takeaway__text takeaway__text--wide">
+        <p class="eyebrow">03 · Control</p>
+        <h2 id="control-title">You stay in control.</h2>
+        <p>
+          Every kind of decision has a tier: autonomous, notify or approve. Budgets and spending thresholds keep spend
+          where you set it. The decisions that need a person wait in your Inbox, and one button stops every run within
+          two seconds.
+        </p>
+      </div>
+      <div class="control__grid">
+        <div class="control__item">
+          <h3>Decision tiers</h3>
+          <p>Autonomous is logged. Notify lets a person object. Approve waits for one.</p>
+          <DecisionsIllustration />
+        </div>
+        <div class="control__item">
+          <h3>The Inbox, budgets and the stop button</h3>
+          <p>Approvals, budget thresholds and agents' questions in one place, next to the button that halts every run.</p>
+          <InboxIllustration />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing" aria-labelledby="next-title">
+    <div class="container closing__inner">
+      <div>
+        <h2 id="next-title">Start with the guide.</h2>
+        <p>
+          The guide explains the model and the first steps once you have access: connect a repository, create a
+          project, file a first issue and read a run's evidence.
+        </p>
+      </div>
+      <div class="actions">
+        <a class="button button--primary" href={href(site.guidePath)}>Read the getting-started guide</a>
+        <a class="button" href={site.accessRequestUrl}>Ask for access<span class="visually-hidden"> (opens an issue on GitHub)</span></a>
+      </div>
+    </div>
   </section>
 </BaseLayout>
+
+<style>
+  /* Hero */
+  .hero {
+    padding-block: var(--space-16) var(--space-16);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .hero__grid {
+    display: grid;
+    gap: var(--space-12);
+  }
+  .hero h1 {
+    max-width: 18ch;
+    margin-bottom: var(--space-6);
+  }
+  .hero__lede {
+    margin-bottom: var(--space-8);
+  }
+  .hero__note {
+    margin: var(--space-4) 0 0;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .audience {
+    align-self: end;
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--space-6);
+  }
+  .audience__title {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-4);
+  }
+  .audience__list {
+    display: grid;
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .audience__list li {
+    padding-left: var(--space-4);
+    border-left: 2px solid var(--color-border);
+  }
+  .audience__list li:first-child {
+    border-left-color: var(--color-accent);
+  }
+  .audience h3 {
+    font-size: var(--text-base);
+    margin-bottom: var(--space-1);
+  }
+  .audience p {
+    margin: 0;
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 64rem) {
+    .hero {
+      padding-block: var(--space-24);
+    }
+    .hero__grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+      gap: var(--space-16);
+      align-items: end;
+    }
+    .audience {
+      border-top: 0;
+      padding-top: 0;
+    }
+  }
+
+  /* Takeaways */
+  .takeaway {
+    padding-block: var(--space-16);
+  }
+  .takeaway + .takeaway {
+    border-top: 1px solid var(--color-border);
+  }
+  .takeaway--alt {
+    background: var(--color-surface-subtle);
+  }
+  .takeaway__grid {
+    display: grid;
+    gap: var(--space-8);
+  }
+  .takeaway__text {
+    max-width: var(--prose-width);
+  }
+  .takeaway__text p:not(.eyebrow) {
+    color: var(--color-text-muted);
+  }
+  .takeaway__figure {
+    min-width: 0;
+  }
+  .points {
+    display: grid;
+    gap: var(--space-2);
+    margin: var(--space-6) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .points li {
+    position: relative;
+    padding-left: var(--space-6);
+  }
+  .points li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.7em;
+    width: 0.75rem;
+    height: 1px;
+    background: var(--color-accent);
+  }
+
+  @media (min-width: 64rem) {
+    .takeaway {
+      padding-block: var(--space-24);
+    }
+    .takeaway__grid {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+      gap: var(--space-16);
+      align-items: center;
+    }
+    .takeaway__grid--reverse {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    }
+    .takeaway__grid--reverse .takeaway__text {
+      order: 2;
+    }
+  }
+
+  .takeaway__text--wide {
+    margin-bottom: var(--space-12);
+  }
+  .control__grid {
+    display: grid;
+    gap: var(--space-12);
+  }
+  .control__item {
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    min-width: 0;
+  }
+  .control__item h3 {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-2);
+  }
+  .control__item p {
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-6);
+  }
+  @media (min-width: 56rem) {
+    .control__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: auto auto 1fr;
+      column-gap: var(--space-8);
+      row-gap: 0;
+    }
+    /* Share the rows, so both windows start on the same line. */
+    .control__item {
+      grid-row: span 3;
+      grid-template-rows: subgrid;
+    }
+  }
+
+  /* Closing */
+  .closing {
+    padding-block: var(--space-16);
+    border-top: 1px solid var(--color-border);
+  }
+  .closing__inner {
+    display: grid;
+    gap: var(--space-6);
+  }
+  .closing p {
+    margin: 0;
+    max-width: var(--prose-width);
+    color: var(--color-text-muted);
+  }
+  @media (min-width: 64rem) {
+    .closing__inner {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: var(--space-16);
+    }
+  }
+</style>
