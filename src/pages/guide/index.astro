@@ -1,47 +1,50 @@
 ---
-// The getting-started guide. This is its first, short version so the home
-// page's primary call to action resolves; ENG-6 writes the full guide here.
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import { href, site } from "../../lib/site";
+// The getting-started guide (src/content/docs/guide.md). Access is by
+// request, so the page says so first, with the link to the request template.
+import { getEntry } from "astro:content";
+import DocLayout from "../../layouts/DocLayout.astro";
+import { sectionize } from "../../lib/sections.mjs";
+import { site } from "../../lib/site";
+
+const entry = await getEntry("docs", "guide");
+if (!entry) throw new Error("src/content/docs/guide.md is missing");
+if (!entry.rendered?.html) throw new Error("docs entry has no rendered body");
+const { html, sections } = sectionize(entry.rendered.html);
+const { title, description, eyebrow, lede, ogImage, numbered } = entry.data;
 ---
 
-<BaseLayout
-  title="Getting started"
-  description="How to start with vyuha: access is by request; once you have it, connect a repository, create a project, file a first issue and read a run's evidence."
->
-  <section class="container page-section" aria-labelledby="page-title">
-    <p class="eyebrow">Guide</p>
-    <h1 id="page-title">Getting started</h1>
-    <p class="lede">
-      Access to vyuha is by request. Once you have it, the first hour looks like this: connect a repository, create a
-      project, file a first issue and read the evidence of the run an agent does on it.
+<DocLayout {...{ title, description, eyebrow, lede, ogImage, numbered }} toc={sections}>
+  <div slot="intro" class="notice">
+    <p>
+      <strong>Access is by request.</strong> This guide starts once you have it. To ask, open an issue on GitHub from the
+      access request template.
     </p>
-    <ol class="guide-steps">
-      <li><strong>Connect a repository.</strong> Agents work in it through branches and pull requests.</li>
-      <li><strong>Create a project.</strong> Give it a team, a goal and a playbook.</li>
-      <li><strong>File a first issue.</strong> An agent picks it up and starts a run.</li>
-      <li><strong>Read the run's evidence.</strong> Commands, tests, screenshots and the pull request, checked before anything merges.</li>
-    </ol>
-    <p>The full guide is being written. Until then, you can ask for access.</p>
-    <p class="guide-actions">
-      <a class="button button--primary" href={site.accessRequestUrl}>Ask for access</a>
-      <a class="button" href={href("/")}>Back to the home page</a>
-    </p>
-  </section>
-</BaseLayout>
+    <a class="button" href={site.accessRequestUrl}>Ask for access<span class="visually-hidden"> (opens an issue on GitHub)</span></a>
+  </div>
+  <Fragment set:html={html} />
+</DocLayout>
 
 <style>
-  .guide-steps {
-    max-width: var(--prose-width);
-    padding-left: var(--space-6);
-    margin: 0 0 var(--space-8);
-  }
-  .guide-steps li {
-    margin-bottom: var(--space-3);
-  }
-  .guide-actions {
+  .notice {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-3);
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4) var(--space-8);
+    max-width: var(--prose-width);
+    margin-top: var(--space-8);
+    padding: var(--space-4) var(--space-6);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-accent);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+  }
+  .notice p {
+    flex: 1 1 20rem;
+    margin: 0;
+    color: var(--color-text-muted);
+  }
+  .notice strong {
+    color: var(--color-text);
   }
 </style>
