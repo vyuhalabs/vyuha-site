@@ -1,0 +1,199 @@
+---
+// Takeaway 3: the Inbox, where the decisions that need a person wait, with the
+// month's budget and the stop button that halts every run.
+import Frame from "./Frame.astro";
+
+const items = [
+  {
+    kind: "Approve",
+    title: "Deploy WEB-38 to production",
+    meta: "release agent · 12 min ago",
+    actions: ["Approve", "Decline"],
+  },
+  {
+    kind: "Budget",
+    title: "Customer portal at 82% of $400 this month",
+    meta: "threshold 80% · 1 h ago",
+    actions: ["Raise", "Hold"],
+  },
+  {
+    kind: "Question",
+    title: "WEB-44: refund window, 14 or 30 days?",
+    meta: "engineer agent · 3 h ago",
+    actions: ["Answer"],
+  },
+] as const;
+---
+
+<Frame
+  label="Illustration of the Inbox in vyuha. Three items wait for a person: approve a production deploy, a project at 82 percent of its 400 dollar monthly budget, and a question from an engineer agent. Above them, 4 runs are active, and a Stop all runs button halts every run within two seconds."
+  crumbs={["Inbox"]}
+>
+  <div class="inbox">
+    <div class="inbox__top">
+      <div class="inbox__runs">
+        <span class="ill-dot ill-dot--active"></span>
+        <span><strong>4</strong> runs active</span>
+      </div>
+      <span class="stop">
+        <span class="stop__icon"></span>
+        Stop all runs
+      </span>
+    </div>
+
+    <div class="budget">
+      <div class="budget__row">
+        <span class="ill-label">Budget · November</span>
+        <span class="ill-mono">$328 / $400</span>
+      </div>
+      <span class="budget__track"><span class="budget__fill"></span><span class="budget__mark"></span></span>
+    </div>
+
+    <ul class="items">
+      {
+        items.map((it) => (
+          <li class="item">
+            <span class:list={["ill-pill", { "ill-pill--accent": it.kind === "Approve" }]}>{it.kind}</span>
+            <span class="item__title">{it.title}</span>
+            <span class="item__meta ill-mono ill-muted">{it.meta}</span>
+            <span class="item__actions">
+              {it.actions.map((a, i) => <span class:list={["act", { "act--primary": i === 0 }]}>{a}</span>)}
+            </span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Frame>
+
+<style>
+  .inbox {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .inbox__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+  .inbox__runs {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .stop {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--color-text);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .stop__icon {
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 2px;
+    background: var(--color-text);
+  }
+
+  .budget {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .budget__row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+  .budget__track {
+    position: relative;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--color-surface-subtle);
+    border: 1px solid var(--color-border);
+  }
+  .budget__fill {
+    position: absolute;
+    inset: -1px auto -1px -1px;
+    width: 82%;
+    border-radius: 3px;
+    background: var(--color-accent);
+  }
+  .budget__mark {
+    position: absolute;
+    left: 80%;
+    top: -4px;
+    bottom: -4px;
+    width: 2px;
+    background: var(--color-text);
+  }
+
+  .items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+  .item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "kind title"
+      ". meta"
+      ". actions";
+    gap: var(--space-1) var(--space-3);
+    align-items: center;
+    padding: var(--space-3) var(--space-4);
+  }
+  .item + .item {
+    border-top: 1px solid var(--color-border);
+  }
+  .item .ill-pill {
+    grid-area: kind;
+    justify-self: start;
+    min-width: 5.25rem;
+    justify-content: center;
+  }
+  .item__title {
+    grid-area: title;
+    font-weight: 600;
+    min-width: 0;
+  }
+  .item__meta {
+    grid-area: meta;
+  }
+  .item__actions {
+    grid-area: actions;
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-1);
+  }
+  .act {
+    padding: 0.1rem 0.6rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    font-size: var(--ill-text-xs);
+    font-weight: 600;
+  }
+  .act--primary {
+    background: var(--color-text);
+    border-color: var(--color-text);
+    color: var(--color-bg);
+  }
+  @container (min-width: 34rem) {
+    .item {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas:
+        "kind title actions"
+        ". meta actions";
+    }
+    .item__actions {
+      margin-top: 0;
+    }
+  }
+</style>

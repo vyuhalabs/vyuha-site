@@ -1,0 +1,106 @@
+---
+// Takeaway 3: the decision matrix. Each kind of decision has a tier:
+// autonomous (logged), notify (a person may object) or approve (wait).
+import Frame from "./Frame.astro";
+
+const tiers = ["Autonomous", "Notify", "Approve"] as const;
+type Tier = (typeof tiers)[number];
+
+const rows: { decision: string; tier: Tier }[] = [
+  { decision: "Open a pull request", tier: "Autonomous" },
+  { decision: "Add a dependency", tier: "Notify" },
+  { decision: "Merge after green checks", tier: "Notify" },
+  { decision: "Spend over $50 in a day", tier: "Approve" },
+  { decision: "Production change", tier: "Approve" },
+  { decision: "Message a customer", tier: "Approve" },
+];
+---
+
+<Frame
+  label="Illustration of the decision matrix in vyuha. Opening a pull request is autonomous. Adding a dependency and merging after green checks notify a person, who may object. Spending over 50 dollars in a day, a production change and a message to a customer wait for a person's approval."
+  crumbs={["Settings", "Decisions"]}
+>
+  <div class="matrix">
+    <div class="matrix__row matrix__row--head">
+      <span class="ill-label">Decision</span>
+      <span class="ill-label matrix__narrow">Tier</span>
+      {tiers.map((t) => <span class="ill-label matrix__tier matrix__wide">{t}</span>)}
+    </div>
+    {
+      rows.map((r) => (
+        <div class="matrix__row">
+          <span class="matrix__decision">{r.decision}</span>
+          <span class:list={["ill-pill matrix__pill", { "ill-pill--accent": r.tier === "Approve" }]}>{r.tier}</span>
+          {tiers.map((t) => (
+            <span class="matrix__cell matrix__wide">
+              <span class:list={["mark", { "mark--on": r.tier === t, "mark--approve": r.tier === t && t === "Approve" }]} />
+            </span>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+</Frame>
+
+<style>
+  .matrix {
+    display: grid;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+  .matrix__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+  }
+  .matrix__row + .matrix__row {
+    border-top: 1px solid var(--color-border);
+  }
+  .matrix__row--head {
+    padding-block: var(--space-2);
+    background: var(--color-surface-subtle);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
+  .matrix__tier {
+    text-align: center;
+  }
+  .matrix__decision {
+    min-width: 0;
+  }
+  .matrix__cell {
+    display: grid;
+    place-items: center;
+  }
+  /* Narrow: the tier is a word beside the decision. Wide: a matrix. */
+  .matrix__wide {
+    display: none;
+  }
+  .mark {
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 50%;
+    background: var(--color-border);
+  }
+  .mark--on {
+    width: 0.75rem;
+    height: 0.75rem;
+    background: var(--color-text-muted);
+  }
+  .mark--approve {
+    background: var(--color-accent);
+  }
+  @container (min-width: 26rem) {
+    .matrix__row {
+      grid-template-columns: minmax(0, 1fr) repeat(3, 5.5rem);
+    }
+    .matrix__wide {
+      display: grid;
+    }
+    .matrix__narrow,
+    .matrix__pill {
+      display: none;
+    }
+  }
+</style>
