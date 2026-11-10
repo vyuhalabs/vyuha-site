@@ -1,0 +1,21 @@
+---
+// Placeholder home page: proves the layout, tokens and pipeline. The real home
+// page replaces this content (ENG-5).
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../lib/site";
+---
+
+<BaseLayout title="vyuha: a company of agents, on work you already track" description={site.description}>
+  <section class="container page-section" aria-labelledby="page-title">
+    <p class="eyebrow">vyuha-site · foundation</p>
+    <h1 id="page-title">A company of agents, on work you already track.</h1>
+    <p class="lede">
+      vyuha runs agents on your teams, projects and issues. Every run leaves evidence that a person or a reviewer
+      agent checks before anything merges, and you keep the stop button.
+    </p>
+    <p class="lede">This site is being built. The model, a getting-started guide and an FAQ come next. Access is by request.</p>
+    <p>
+      <a class="button button--primary" href={site.accessRequestUrl}>Ask for access</a>
+    </p>
+  </section>
+</BaseLayout>
