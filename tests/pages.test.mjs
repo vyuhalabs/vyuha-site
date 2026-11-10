@@ -96,9 +96,24 @@ describe("content pages", { skip: built ? false : "no dist/; run `pnpm build` fi
   test("model: seven sections, each with an anchor and a heading", () => {
     const html = read("model/index.html");
     for (const id of ["work", "agents", "decisions", "evidence", "playbooks", "pods", "budgets"]) {
-      assert.match(html, new RegExp(`<section class="doc-section" id="${id}" aria-labelledby="${id}-title">`), id);
+      assert.match(html, new RegExp(`<section class="doc-section" id="${id}" aria-labelledby="${id}-title"[\\s>]`), id);
       assert.match(html, new RegExp(`<h2 id="${id}-title">`), id);
     }
+  });
+
+  test("model: the home page's illustrations sit inside their sections", () => {
+    const html = read("model/index.html");
+    for (const [id, topic] of [
+      ["work", "a project"],
+      ["decisions", "decision matrix"],
+      ["evidence", "a run"],
+      ["budgets", "Inbox"],
+    ]) {
+      const start = html.indexOf(`<section class="doc-section" id="${id}"`);
+      const section = html.slice(start, html.indexOf("</section>", start));
+      assert.match(section, new RegExp(`role="img"[^>]*aria-label="Illustration of [^"]*${topic}`), id);
+    }
+    assert.doesNotMatch(html, /<img\s/);
   });
 
   test("guide: four steps, access by request, link to the template", () => {

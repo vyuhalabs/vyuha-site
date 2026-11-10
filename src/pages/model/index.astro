@@ -1,8 +1,13 @@
 ---
 // The model page: work, agents, decisions, evidence, playbooks, pods and
 // budgets, each its own section (src/content/docs/model.md), with an overview
-// of the seven above the text.
+// of the seven above the text. Four sections show the product with the home
+// page's illustrations, so the words and the screens they describe sit together.
 import { getEntry } from "astro:content";
+import DecisionsIllustration from "../../components/illustrations/DecisionsIllustration.astro";
+import InboxIllustration from "../../components/illustrations/InboxIllustration.astro";
+import RunIllustration from "../../components/illustrations/RunIllustration.astro";
+import WorkIllustration from "../../components/illustrations/WorkIllustration.astro";
 import DocLayout from "../../layouts/DocLayout.astro";
 import { sectionize } from "../../lib/sections.mjs";
 import { href, site } from "../../lib/site";
@@ -10,7 +15,14 @@ import { href, site } from "../../lib/site";
 const entry = await getEntry("docs", "model");
 if (!entry) throw new Error("src/content/docs/model.md is missing");
 if (!entry.rendered?.html) throw new Error("docs entry has no rendered body");
-const { html, sections } = sectionize(entry.rendered.html);
+const { intro, sections } = sectionize(entry.rendered.html);
+/** The illustration shown at the end of a section, by section id. */
+const figures: Record<string, typeof WorkIllustration> = {
+  work: WorkIllustration,
+  decisions: DecisionsIllustration,
+  evidence: RunIllustration,
+  budgets: InboxIllustration,
+};
 const { title, description, eyebrow, lede, ogImage, numbered } = entry.data;
 const glance = entry.data.glance ?? [];
 for (const g of glance) {
@@ -40,10 +52,28 @@ for (const g of glance) {
       </a>
     </li>
   </ol>
-  <Fragment set:html={html} />
+  <Fragment set:html={intro} />
+  {
+    sections.map((s) => {
+      const Figure = figures[s.id];
+      return (
+        <section class="doc-section" id={s.id} aria-labelledby={`${s.id}-title`}>
+          <Fragment set:html={s.body} />
+          {Figure && (
+            <div class="doc-figure">
+              <Figure />
+            </div>
+          )}
+        </section>
+      );
+    })
+  }
 </DocLayout>
 
 <style>
+  .doc-figure {
+    margin-top: var(--space-8);
+  }
   .glance {
     display: grid;
     gap: var(--space-2);

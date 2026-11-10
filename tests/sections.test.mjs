@@ -12,12 +12,16 @@ test("wraps each h2 and what follows it in a labelled section", () => {
       '<p>a</p><h3 id="x">X</h3></section>\n<section class="doc-section" id="agents" aria-labelledby="agents-title">' +
       '<h2 id="agents-title">Agents &amp; you</h2><p>b</p></section>',
   );
-  assert.deepEqual(sections, [
-    { id: "work", text: "Work" },
-    { id: "agents", text: "Agents & you" },
-  ]);
+  assert.deepEqual(
+    sections.map(({ id, text }) => ({ id, text })),
+    [
+      { id: "work", text: "Work" },
+      { id: "agents", text: "Agents & you" },
+    ],
+  );
+  assert.equal(sections[0]?.body, '<h2 id="work-title">Work</h2><p>a</p><h3 id="x">X</h3>');
 });
 
 test("leaves a page without h2 as it is", () => {
-  assert.deepEqual(sectionize("<p>only</p>"), { html: "<p>only</p>", sections: [] });
+  assert.deepEqual(sectionize("<p>only</p>"), { html: "<p>only</p>", intro: "<p>only</p>", sections: [] });
 });
