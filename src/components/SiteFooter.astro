@@ -1,14 +1,27 @@
 ---
-import { site } from "../lib/site";
+import { href, isCurrent, pages, site } from "../lib/site";
+
+const here = Astro.url.pathname;
 ---
 
 <footer class="site-footer">
   <div class="container site-footer__inner">
     <p>{site.name}: a formation of agents that moves as one.</p>
-    <ul class="footer-links">
-      <li><a href={site.repository}>Source on GitHub</a></li>
-      <li><a href={site.accessRequestUrl}>Ask for access</a></li>
-    </ul>
+    <nav aria-label="Footer">
+      <ul class="footer-links">
+        {
+          pages.map((p) => (
+            <li>
+              <a href={href(p.path)} aria-current={isCurrent(here, p.path) ? "page" : undefined}>
+                {p.label}
+              </a>
+            </li>
+          ))
+        }
+        <li><a href={site.repository}>Source on GitHub</a></li>
+        <li><a href={site.accessRequestUrl}>Ask for access</a></li>
+      </ul>
+    </nav>
   </div>
 </footer>
 
@@ -22,6 +35,7 @@ import { site } from "../lib/site";
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    align-items: baseline;
     gap: var(--space-4);
     padding-block: var(--space-8);
   }
@@ -30,12 +44,20 @@ import { site } from "../lib/site";
   }
   .footer-links {
     display: flex;
-    gap: var(--space-6);
+    flex-wrap: wrap;
+    column-gap: var(--space-6);
+    row-gap: var(--space-2);
     margin: 0;
     padding: 0;
     list-style: none;
   }
   .footer-links a {
+    display: inline-block;
+    padding-block: var(--space-1);
     color: var(--color-text-muted);
+  }
+  .footer-links a[aria-current="page"] {
+    color: var(--color-text);
+    text-decoration: none;
   }
 </style>

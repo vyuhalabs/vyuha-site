@@ -1,14 +1,32 @@
 ---
-import { href, site } from "../lib/site";
+// Site header: the wordmark (home) and the main navigation. The link to the
+// page you are on carries aria-current="page" and an accent underline.
+import { href, isCurrent, pages, site } from "../lib/site";
+
+const here = Astro.url.pathname;
+const sections = pages.filter((p) => p.path !== "/");
+const atHome = isCurrent(here, "/");
 ---
 
 <header class="site-header">
   <div class="container site-header__inner">
-    <a class="wordmark" href={href("/")}>{site.name}<span class="visually-hidden">, home</span></a>
+    <a class="wordmark" href={href("/")} aria-current={atHome ? "page" : undefined}
+      >{site.name}<span class="visually-hidden">, home</span></a
+    >
     <nav aria-label="Main">
       <ul class="nav-list">
-        <li><a href={href(site.guidePath)}>Getting started</a></li>
-        <li><a href={site.accessRequestUrl}>Ask for access</a></li>
+        {
+          sections.map((p) => (
+            <li>
+              <a href={href(p.path)} aria-current={isCurrent(here, p.path) ? "page" : undefined}>
+                {p.label}
+              </a>
+            </li>
+          ))
+        }
+        <li class="nav-list__cta">
+          <a href={site.accessRequestUrl}>Ask for access<span class="visually-hidden"> (opens an issue on GitHub)</span></a>
+        </li>
       </ul>
     </nav>
   </div>
@@ -22,10 +40,14 @@ import { href, site } from "../lib/site";
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-6);
+    flex-wrap: wrap;
+    column-gap: var(--space-6);
     min-height: 4rem;
   }
   .wordmark {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
     font-weight: 700;
     font-size: var(--text-lg);
     letter-spacing: -0.01em;
@@ -34,17 +56,60 @@ import { href, site } from "../lib/site";
   }
   .nav-list {
     display: flex;
-    gap: var(--space-6);
-    margin: 0;
+    align-items: center;
+    gap: var(--space-1);
+    margin: 0 calc(-1 * var(--space-2));
     padding: 0;
     list-style: none;
   }
   .nav-list a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding-inline: var(--space-2);
     color: var(--color-text-muted);
     text-decoration: none;
     font-weight: 600;
+    white-space: nowrap;
   }
   .nav-list a:hover {
     color: var(--color-text);
+  }
+  .nav-list a[aria-current="page"] {
+    color: var(--color-text);
+  }
+  /* The current page: an accent rule under the link, on the header's border. */
+  .nav-list a[aria-current="page"]::after {
+    content: "";
+    position: absolute;
+    left: var(--space-2);
+    right: var(--space-2);
+    bottom: calc((2.75rem - 4rem) / 2 - 1px);
+    height: 2px;
+    background: var(--color-accent);
+  }
+  .nav-list__cta {
+    margin-left: var(--space-3);
+    padding-left: var(--space-3);
+    border-left: 1px solid var(--color-border);
+  }
+  .nav-list__cta a {
+    color: var(--color-accent);
+  }
+
+  /* Phones: the navigation takes a row of its own under the wordmark. */
+  @media (max-width: 39.99rem) {
+    nav {
+      flex-basis: 100%;
+    }
+    .nav-list__cta {
+      margin-left: auto;
+      padding-left: 0;
+      border-left: 0;
+    }
+    .nav-list a[aria-current="page"]::after {
+      bottom: -1px;
+    }
   }
 </style>

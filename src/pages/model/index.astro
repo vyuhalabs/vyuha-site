@@ -1,0 +1,111 @@
+---
+// The model page: work, agents, decisions, evidence, playbooks, pods and
+// budgets, each its own section (src/content/docs/model.md), with an overview
+// of the seven above the text.
+import { getEntry } from "astro:content";
+import DocLayout from "../../layouts/DocLayout.astro";
+import { sectionize } from "../../lib/sections.mjs";
+import { href, site } from "../../lib/site";
+
+const entry = await getEntry("docs", "model");
+if (!entry) throw new Error("src/content/docs/model.md is missing");
+if (!entry.rendered?.html) throw new Error("docs entry has no rendered body");
+const { html, sections } = sectionize(entry.rendered.html);
+const { title, description, eyebrow, lede, ogImage, numbered } = entry.data;
+const glance = entry.data.glance ?? [];
+for (const g of glance) {
+  if (!sections.some((t) => t.id === g.section))
+    throw new Error(`model.md: glance points at missing section #${g.section}`);
+}
+---
+
+<DocLayout {...{ title, description, eyebrow, lede, ogImage, numbered }} toc={sections} tocOnPhones={false}>
+  <ol slot="intro" class="glance" aria-label="The model at a glance">
+    {
+      glance.map((g, i) => (
+        <li>
+          <a class="glance__card" href={`#${g.section}`}>
+            <span class="glance__num">{String(i + 1).padStart(2, "0")}</span>
+            <span class="glance__term">{g.term}</span>
+            <span class="glance__summary">{g.summary}</span>
+          </a>
+        </li>
+      ))
+    }
+    <li>
+      <a class="glance__card glance__card--next" href={href(site.guidePath)}>
+        <span class="glance__num">Then</span>
+        <span class="glance__term">Getting started</span>
+        <span class="glance__summary">The first steps once you have access.</span>
+      </a>
+    </li>
+  </ol>
+  <Fragment set:html={html} />
+</DocLayout>
+
+<style>
+  .glance {
+    display: grid;
+    gap: var(--space-2);
+    margin: var(--space-12) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .glance__card {
+    display: grid;
+    grid-template-columns: 2.5rem 6.5rem minmax(0, 1fr);
+    align-items: baseline;
+    gap: var(--space-2);
+    height: 100%;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+  .glance__card--next {
+    border-style: dashed;
+    background: transparent;
+  }
+  .glance__card:hover {
+    border-color: var(--color-border-strong);
+  }
+  .glance__num {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--color-accent);
+  }
+  .glance__term {
+    font-weight: 700;
+  }
+  .glance__summary {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+  .glance__card:hover .glance__term {
+    color: var(--color-accent);
+  }
+
+  @media (min-width: 40rem) {
+    .glance {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+    .glance__card {
+      grid-template-columns: 1fr;
+      align-content: start;
+      gap: var(--space-1);
+      padding: var(--space-4) var(--space-6) var(--space-6);
+    }
+    .glance__num {
+      margin-bottom: var(--space-2);
+    }
+  }
+  @media (min-width: 64rem) {
+    .glance {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+  }
+</style>
